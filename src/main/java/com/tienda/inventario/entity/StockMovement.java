@@ -25,6 +25,10 @@ public class StockMovement {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "business_id", nullable = false)
+    private Business business;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
@@ -41,6 +45,13 @@ public class StockMovement {
     @Column(name = "balance_after", nullable = false)
     private long balanceAfter;
 
+    @Column(name = "actor_user_id")
+    private UUID actorUserId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sale_id")
+    private Sale sale;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -48,11 +59,26 @@ public class StockMovement {
     }
 
     public StockMovement(Product product, MovementType type, long quantity, String reason, long balanceAfter) {
+        this(product, type, quantity, reason, balanceAfter, null, null);
+    }
+
+    public StockMovement(
+            Product product,
+            MovementType type,
+            long quantity,
+            String reason,
+            long balanceAfter,
+            UUID actorUserId,
+            Sale sale
+    ) {
+        this.business = product.getBusiness();
         this.product = product;
         this.type = type;
         this.quantity = quantity;
         this.reason = reason.trim();
         this.balanceAfter = balanceAfter;
+        this.actorUserId = actorUserId;
+        this.sale = sale;
     }
 
     @PrePersist
@@ -67,6 +93,8 @@ public class StockMovement {
     public Product getProduct() {
         return product;
     }
+
+    public Business getBusiness() { return business; }
 
     public MovementType getType() {
         return type;
@@ -83,6 +111,9 @@ public class StockMovement {
     public long getBalanceAfter() {
         return balanceAfter;
     }
+
+    public UUID getActorUserId() { return actorUserId; }
+    public Sale getSale() { return sale; }
 
     public Instant getCreatedAt() {
         return createdAt;

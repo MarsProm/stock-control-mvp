@@ -13,6 +13,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.net.URI;
 import java.util.List;
@@ -30,6 +31,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessConflictException.class)
     public ResponseEntity<ProblemDetail> conflict(BusinessConflictException exception, HttpServletRequest request) {
         return response("business-conflict", "Conflicto de negocio", HttpStatus.CONFLICT, exception.getMessage(), request);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ProblemDetail> forbidden(AccessDeniedException exception, HttpServletRequest request) {
+        return response("forbidden", "Acceso denegado", HttpStatus.FORBIDDEN, exception.getMessage(), request);
     }
 
     @ExceptionHandler({InvalidRequestException.class, ConstraintViolationException.class})

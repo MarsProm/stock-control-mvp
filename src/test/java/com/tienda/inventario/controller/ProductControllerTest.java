@@ -28,6 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(GlobalExceptionHandler.class)
 class ProductControllerTest {
 
+    private static final UUID BUSINESS_ID = UUID.fromString("00000000-0000-0000-0000-000000000100");
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -37,25 +39,25 @@ class ProductControllerTest {
     @Test
     void createsProductAndReturnsLocation() throws Exception {
         UUID id = UUID.randomUUID();
-        when(productService.create(any())).thenReturn(new ProductResponse(
+        when(productService.create(org.mockito.ArgumentMatchers.eq(BUSINESS_ID), any())).thenReturn(new ProductResponse(
                 id, "CAF-001", "Cafe", null, new BigDecimal("8500.00"),
                 0, 5, true, true, Instant.now(), Instant.now()
         ));
 
-        mockMvc.perform(post("/api/v1/products")
+        mockMvc.perform(post("/api/v1/businesses/{businessId}/products", BUSINESS_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"code":"CAF-001","name":"Cafe","price":8500.00,"minimumStock":5}
                                 """))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", "/api/v1/products/" + id))
+                .andExpect(header().string("Location", "/api/v1/businesses/" + BUSINESS_ID + "/products/" + id))
                 .andExpect(jsonPath("$.code").value("CAF-001"))
                 .andExpect(jsonPath("$.currentStock").value(0));
     }
 
     @Test
     void returnsValidationProblem() throws Exception {
-        mockMvc.perform(post("/api/v1/products")
+        mockMvc.perform(post("/api/v1/businesses/{businessId}/products", BUSINESS_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"code":"X","name":"","price":-1,"minimumStock":-2}
@@ -67,7 +69,7 @@ class ProductControllerTest {
 
     @Test
     void rejectsNegativeInitialStock() throws Exception {
-        mockMvc.perform(post("/api/v1/products")
+        mockMvc.perform(post("/api/v1/businesses/{businessId}/products", BUSINESS_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"code":"7791234567890","name":"Cafe","price":8500.00,"minimumStock":5,"initialStock":-1}
@@ -80,12 +82,12 @@ class ProductControllerTest {
     @Test
     void findsInactiveProductByExactCode() throws Exception {
         UUID id = UUID.randomUUID();
-        when(productService.getByCode("7791234567890")).thenReturn(new ProductResponse(
+        when(productService.getByCode(BUSINESS_ID, "7791234567890")).thenReturn(new ProductResponse(
                 id, "7791234567890", "Cafe", null, new BigDecimal("8500.00"),
                 4, 5, true, false, Instant.now(), Instant.now()
         ));
 
-        mockMvc.perform(get("/api/v1/products/by-code").param("code", "7791234567890"))
+        mockMvc.perform(get("/api/v1/businesses/{businessId}/products/by-code", BUSINESS_ID).param("code", "7791234567890"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("7791234567890"))
                 .andExpect(jsonPath("$.active").value(false));
@@ -93,10 +95,10 @@ class ProductControllerTest {
 
     @Test
     void returnsNotFoundForUnknownCode() throws Exception {
-        when(productService.getByCode("7790000000000"))
+        when(productService.getByCode(BUSINESS_ID, "7790000000000"))
                 .thenThrow(new ResourceNotFoundException("No existe el producto con codigo 7790000000000"));
 
-        mockMvc.perform(get("/api/v1/products/by-code").param("code", "7790000000000"))
+        mockMvc.perform(get("/api/v1/businesses/{businessId}/products/by-code", BUSINESS_ID).param("code", "7790000000000"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.title").value("Recurso no encontrado"));
     }

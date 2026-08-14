@@ -21,7 +21,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/products/{productId}/movements")
+@RequestMapping("/api/v1/businesses/{businessId}/products/{productId}/movements")
 @Tag(name = "Movimientos de stock")
 public class StockMovementController {
 
@@ -33,22 +33,24 @@ public class StockMovementController {
 
     @PostMapping
     public ResponseEntity<MovementResponse> create(
+            @PathVariable UUID businessId,
             @PathVariable UUID productId,
             @Valid @RequestBody CreateMovementRequest request
     ) {
-        MovementResponse response = movementService.create(productId, request);
-        URI location = URI.create("/api/v1/products/" + productId + "/movements/" + response.id());
+        MovementResponse response = movementService.create(businessId, productId, request);
+        URI location = URI.create("/api/v1/businesses/" + businessId + "/products/" + productId + "/movements/" + response.id());
         return ResponseEntity.created(location).body(response);
     }
 
     @GetMapping
     public PageResponse<MovementResponse> history(
+            @PathVariable UUID businessId,
             @PathVariable UUID productId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant to,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
     ) {
-        return movementService.history(productId, from, to, page, size);
+        return movementService.history(businessId, productId, from, to, page, size);
     }
 }

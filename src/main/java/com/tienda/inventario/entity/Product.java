@@ -5,6 +5,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -22,6 +25,10 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "business_id", nullable = false)
+    private Business business;
 
     @Column(nullable = false, length = 50)
     private String code;
@@ -58,6 +65,11 @@ public class Product {
     }
 
     public Product(String code, String name, String description, BigDecimal price, long minimumStock) {
+        this(null, code, name, description, price, minimumStock);
+    }
+
+    public Product(Business business, String code, String name, String description, BigDecimal price, long minimumStock) {
+        this.business = business;
         updateDetails(code, name, description, price, minimumStock);
         this.currentStock = 0;
         this.active = true;
@@ -110,6 +122,10 @@ public class Product {
 
     public UUID getId() {
         return id;
+    }
+
+    public Business getBusiness() {
+        return business;
     }
 
     public String getCode() {

@@ -11,6 +11,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -29,10 +30,11 @@ class ProductSearchTest {
 
     @Test
     void delegatesSearchAndReturnsStablePageShape() throws Exception {
-        when(productService.search("cafe", true, true, 0, 20, "name,asc"))
+        UUID businessId = UUID.randomUUID();
+        when(productService.search(businessId, "cafe", true, true, 0, 20, "name,asc"))
                 .thenReturn(new PageResponse<>(List.of(), new PageResponse.PageMetadata(0, 20, 0, 0)));
 
-        mockMvc.perform(get("/api/v1/products")
+        mockMvc.perform(get("/api/v1/businesses/{businessId}/products", businessId)
                         .param("query", "cafe")
                         .param("lowStock", "true"))
                 .andExpect(status().isOk())

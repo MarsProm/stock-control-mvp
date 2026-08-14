@@ -1,86 +1,150 @@
-import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom'
-import { Boxes, History, LayoutDashboard, PackagePlus } from 'lucide-react'
-import { DashboardPage } from './features/dashboard/DashboardPage'
-import { MovementHistoryPage } from './features/movements/MovementHistoryPage'
-import { ProductsPage } from './features/products/ProductsPage'
-
-const navigation = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/products', label: 'Productos', icon: Boxes, end: false },
-  { to: '/history', label: 'Historial', icon: History, end: false },
-]
+import { Navigate, Route, Routes } from "react-router-dom";
+import { AppShell } from "./components/AppShell";
+import { RegistersPage } from "./features/admin/RegistersPage";
+import { PlatformPage } from "./features/admin/PlatformPage";
+import { SalesPage } from "./features/admin/SalesPage";
+import { SettingsPage } from "./features/admin/SettingsPage";
+import { UsersPage } from "./features/admin/UsersPage";
+import { useAuth } from "./features/auth/auth-context";
+import { AcceptInvitationPage } from "./features/auth/AcceptInvitationPage";
+import { useBusiness } from "./features/auth/business-context";
+import { LoginPage } from "./features/auth/LoginPage";
+import { SelectBusinessPage } from "./features/auth/SelectBusinessPage";
+import { DashboardPage } from "./features/dashboard/DashboardPage";
+import { MovementHistoryPage } from "./features/movements/MovementHistoryPage";
+import { PosPage } from "./features/pos/PosPage";
+import { ProductsPage } from "./features/products/ProductsPage";
 
 function App() {
+  const { authenticated, loading: authLoading } = useAuth();
+  const { business, loading: businessLoading } = useBusiness();
+
+  if (authLoading || (authenticated && businessLoading))
+    return <LoadingScreen />;
+
   return (
-    <BrowserRouter>
-      <div className="min-h-screen bg-slate-50 text-slate-950">
-        <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 border-r border-slate-200 bg-slate-950 px-4 py-6 text-white lg:block">
-          <div className="mb-10 flex items-center gap-3 px-2">
-            <span className="grid size-10 place-items-center rounded-xl bg-emerald-500 text-slate-950">
-              <PackagePlus aria-hidden="true" size={22} />
-            </span>
-            <div>
-              <p className="font-semibold leading-tight">Stock Control</p>
-              <p className="text-xs text-slate-400">Inventario de tienda</p>
-            </div>
-          </div>
-          <nav aria-label="Navegacion principal" className="space-y-2">
-            {navigation.map(({ to, label, icon: Icon, end }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={end}
-                className={({ isActive }) =>
-                  `flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400 ${
-                    isActive
-                      ? 'bg-white text-slate-950'
-                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                  }`
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      {!authenticated ? (
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      ) : (
+        <>
+          <Route path="/select-business" element={<SelectBusinessPage />} />
+          <Route path="/accept-invitation" element={<AcceptInvitationPage />} />
+          <Route path="/platform" element={<PlatformGuard />} />
+          {!business ? (
+            <Route
+              path="*"
+              element={<Navigate to="/select-business" replace />}
+            />
+          ) : (
+            <Route element={<AppShell />}>
+              <Route
+                index
+                element={
+                  <Navigate
+                    to={business.role === "ADMIN" ? "/admin/dashboard" : "/pos"}
+                    replace
+                  />
                 }
-              >
-                <Icon aria-hidden="true" size={19} />
-                {label}
-              </NavLink>
-            ))}
-          </nav>
-        </aside>
-
-        <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
-          <div className="mb-3 flex items-center gap-2 font-semibold">
-            <PackagePlus className="text-emerald-600" aria-hidden="true" size={22} />
-            Stock Control
-          </div>
-          <nav aria-label="Navegacion principal" className="flex gap-2 overflow-x-auto pb-1">
-            {navigation.map(({ to, label, icon: Icon, end }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={end}
-                className={({ isActive }) =>
-                  `flex min-h-11 shrink-0 items-center gap-2 rounded-lg px-3 text-sm font-medium ${
-                    isActive ? 'bg-slate-950 text-white' : 'bg-slate-100 text-slate-700'
-                  }`
+              />
+              <Route
+                path="/pos"
+                element={business.posEnabled ? <PosPage /> : <ModuleDisabled />}
+              />
+              {business.role === "ADMIN" ? (
+                <>
+                  <Route path="/admin/dashboard" element={<DashboardPage />} />
+                  <Route
+                    path="/products"
+                    element={
+                      business.inventoryEnabled ? (
+                        <ProductsPage />
+                      ) : (
+                        <ModuleDisabled />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/stock"
+                    element={
+                      business.inventoryEnabled ? (
+                        <MovementHistoryPage />
+                      ) : (
+                        <ModuleDisabled />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/sales"
+                    element={
+                      business.reportsEnabled ? (
+                        <SalesPage />
+                      ) : (
+                        <ModuleDisabled />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/registers"
+                    element={
+                      business.posEnabled ? (
+                        <RegistersPage />
+                      ) : (
+                        <ModuleDisabled />
+                      )
+                    }
+                  />
+                  <Route path="/users" element={<UsersPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                </>
+              ) : null}
+              <Route
+                path="*"
+                element={
+                  <Navigate
+                    to={business.role === "ADMIN" ? "/admin/dashboard" : "/pos"}
+                    replace
+                  />
                 }
-              >
-                <Icon aria-hidden="true" size={17} />
-                {label}
-              </NavLink>
-            ))}
-          </nav>
-        </header>
-
-        <main className="px-4 py-6 sm:px-6 lg:ml-64 lg:px-10 lg:py-9">
-          <div className="mx-auto max-w-7xl">
-            <Routes>
-              <Route path="/" element={<DashboardPage />} />
-              <Route path="/products" element={<ProductsPage />} />
-              <Route path="/history" element={<MovementHistoryPage />} />
-            </Routes>
-          </div>
-        </main>
-      </div>
-    </BrowserRouter>
-  )
+              />
+            </Route>
+          )}
+        </>
+      )}
+    </Routes>
+  );
 }
 
-export default App
+function PlatformGuard() {
+  const { me } = useBusiness();
+  return me?.platformAdministrator ? (
+    <PlatformPage />
+  ) : (
+    <Navigate to="/select-business" replace />
+  );
+}
+
+function ModuleDisabled() {
+  return (
+    <section className="panel mx-auto max-w-xl p-7 text-center">
+      <h1 className="text-2xl font-semibold">Módulo desactivado</h1>
+      <p className="mt-2 text-slate-600">
+        Un administrador puede volver a habilitarlo desde Configuración.
+      </p>
+    </section>
+  );
+}
+
+function LoadingScreen() {
+  return (
+    <main className="grid min-h-dvh place-items-center bg-slate-950 text-white">
+      <div role="status" className="text-center">
+        <span className="mx-auto block size-10 animate-spin rounded-full border-4 border-slate-700 border-t-emerald-400" />
+        <p className="mt-4 text-sm text-slate-300">Preparando tu espacio…</p>
+      </div>
+    </main>
+  );
+}
+
+export default App;

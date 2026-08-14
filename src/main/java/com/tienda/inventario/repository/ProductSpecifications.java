@@ -4,10 +4,15 @@ import com.tienda.inventario.entity.Product;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Locale;
+import java.util.UUID;
 
 public final class ProductSpecifications {
 
     private ProductSpecifications() {
+    }
+
+    public static Specification<Product> belongsTo(UUID businessId) {
+        return (root, query, builder) -> builder.equal(root.get("business").get("id"), businessId);
     }
 
     public static Specification<Product> matchesQuery(String queryText) {

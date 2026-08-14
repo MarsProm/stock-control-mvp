@@ -26,6 +26,7 @@ public class StockMovementService {
     private final ProductRepository productRepository;
     private final StockMovementRepository movementRepository;
     private final MovementMapper movementMapper;
+    private final AccessService accessService;
 
     public StockMovementService(
             ProductRepository productRepository,
@@ -35,11 +36,37 @@ public class StockMovementService {
         this.productRepository = productRepository;
         this.movementRepository = movementRepository;
         this.movementMapper = movementMapper;
+        this.accessService = null;
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public StockMovementService(
+            ProductRepository productRepository,
+            StockMovementRepository movementRepository,
+            MovementMapper movementMapper,
+            AccessService accessService
+    ) {
+        this.productRepository = productRepository;
+        this.movementRepository = movementRepository;
+        this.movementMapper = movementMapper;
+        this.accessService = accessService;
     }
 
     @Transactional
     public MovementResponse create(UUID productId, CreateMovementRequest request) {
-        Product product = productRepository.findByIdForUpdate(productId)
+        return createInternal(null, productId, request);
+    }
+
+    @Transactional
+    public MovementResponse create(UUID businessId, UUID productId, CreateMovementRequest request) {
+        accessService.requireInventory(businessId, true);
+        return createInternal(businessId, productId, request);
+    }
+
+    private MovementResponse createInternal(UUID businessId, UUID productId, CreateMovementRequest request) {
+        Product product = (businessId == null
+                ? productRepository.findByIdForUpdate(productId)
+                : productRepository.findByIdForUpdate(businessId, productId))
                 .orElseThrow(() -> new ResourceNotFoundException("No existe el producto " + productId));
         if (!product.isActive()) {
             throw new BusinessConflictException("El producto esta inactivo y no admite movimientos");
@@ -62,7 +89,9 @@ public class StockMovementService {
                 request.type(),
                 request.quantity(),
                 request.reason(),
-                balanceAfter
+                balanceAfter,
+                accessService == null ? null : accessService.currentUser().id(),
+                null
         );
         return movementMapper.toResponse(movementRepository.save(movement));
     }
@@ -75,7 +104,24 @@ public class StockMovementService {
             int page,
             int size
     ) {
-        if (!productRepository.existsById(productId)) {
+        return historyInternal(null, productId, from, to, page, size);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<MovementResponse> history(
+            UUID businessId, UUID productId, Instant from, Instant to, int page, int size
+    ) {
+        accessService.requireInventory(businessId, false);
+        return historyInternal(businessId, productId, from, to, page, size);
+    }
+
+    private PageResponse<MovementResponse> historyInternal(
+            UUID businessId, UUID productId, Instant from, Instant to, int page, int size
+    ) {
+        boolean exists = businessId == null
+                ? productRepository.existsById(productId)
+                : productRepository.existsByIdAndBusiness_Id(productId, businessId);
+        if (!exists) {
             throw new ResourceNotFoundException("No existe el producto " + productId);
         }
         if (from != null && to != null && from.isAfter(to)) {
@@ -91,13 +137,21 @@ public class StockMovementService {
         );
         Page<StockMovement> result;
         if (from != null && to != null) {
-            result = movementRepository.findByProduct_IdAndCreatedAtBetween(productId, from, to, pageable);
+            result = businessId == null
+                    ? movementRepository.findByProduct_IdAndCreatedAtBetween(productId, from, to, pageable)
+                    : movementRepository.findByBusiness_IdAndProduct_IdAndCreatedAtBetween(businessId, productId, from, to, pageable);
         } else if (from != null) {
-            result = movementRepository.findByProduct_IdAndCreatedAtGreaterThanEqual(productId, from, pageable);
+            result = businessId == null
+                    ? movementRepository.findByProduct_IdAndCreatedAtGreaterThanEqual(productId, from, pageable)
+                    : movementRepository.findByBusiness_IdAndProduct_IdAndCreatedAtGreaterThanEqual(businessId, productId, from, pageable);
         } else if (to != null) {
-            result = movementRepository.findByProduct_IdAndCreatedAtLessThanEqual(productId, to, pageable);
+            result = businessId == null
+                    ? movementRepository.findByProduct_IdAndCreatedAtLessThanEqual(productId, to, pageable)
+                    : movementRepository.findByBusiness_IdAndProduct_IdAndCreatedAtLessThanEqual(businessId, productId, to, pageable);
         } else {
-            result = movementRepository.findByProduct_Id(productId, pageable);
+            result = businessId == null
+                    ? movementRepository.findByProduct_Id(productId, pageable)
+                    : movementRepository.findByBusiness_IdAndProduct_Id(businessId, productId, pageable);
         }
         return PageResponse.from(result.map(movementMapper::toResponse));
     }

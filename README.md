@@ -1,103 +1,105 @@
 # Stock Control
 
-Una aplicación web pensada para llevar el inventario de una tienda de forma simple: saber qué productos hay, cuánto stock queda y qué movimientos se realizaron.
+Stock Control es una aplicación para administrar inventario y ventas de una o varias tiendas desde un mismo lugar. Cada negocio conserva sus propios productos, usuarios, cajas, movimientos y ventas.
 
-El proyecto nació como un MVP para aprender y aplicar una arquitectura completa con Spring Boot, React y PostgreSQL. Actualmente permite administrar productos, registrar entradas y salidas y agilizar la carga mediante códigos de barras.
+**[Abrir la aplicación](https://stock-control-mvp.vercel.app)**
 
-## Probar la aplicación
+> El backend utiliza el plan gratuito de Render. La primera carga puede demorar unos segundos si el servicio estuvo inactivo.
 
-**[Abrir Stock Control](https://stock-control-mvp.vercel.app)**
+## Qué permite hacer
 
-> El backend funciona con el plan gratuito de Render. Si estuvo un tiempo sin actividad, la primera carga puede demorar unos segundos mientras el servicio vuelve a iniciarse.
+- Administrar varias tiendas sin mezclar su información.
+- Invitar administradores y cajeros con permisos diferentes.
+- Crear productos y asignarles stock inicial.
+- Leer códigos de barras con cámara, lector USB o carga manual.
+- Registrar entradas y salidas con historial inmutable.
+- Abrir y cerrar turnos de caja con arqueo de efectivo.
+- Vender con efectivo, tarjeta, transferencia o pagos combinados.
+- Calcular automáticamente el vuelto.
+- Autorizar descuentos máximos por cajero y guardar su motivo.
+- Anular una venta mientras el turno original siga abierto y devolver el stock.
+- Imprimir y reimprimir tickets térmicos de 80 mm o en formato A4.
+- Personalizar el nombre, logo, colores y textos del ticket de cada tienda.
 
-## ¿Qué se puede hacer?
+## Roles
 
-- Consultar el estado general del inventario.
-- Crear y editar productos.
-- Definir un stock inicial al dar de alta un producto.
-- Registrar entradas y salidas de mercadería.
-- Evitar salidas superiores al stock disponible.
-- Detectar productos con stock bajo.
-- Consultar el historial de movimientos.
-- Activar o desactivar productos sin perder su historial.
-- Buscar productos por nombre o código.
-- Leer códigos de barras con la cámara, un lector USB o de forma manual.
+### Superadministrador
 
-## Carga mediante código de barras
+Crea tiendas, invita al primer administrador y activa o desactiva negocios. Su función es administrar la plataforma, no operar una caja.
 
-Desde la sección **Productos** se puede seleccionar **Escanear código**.
+### Administrador
 
-Si el código todavía no existe, la aplicación abre el alta con el código ya cargado. Solo hay que completar el nombre, el precio, el stock mínimo y, si corresponde, el stock inicial.
+Gestiona los productos, el stock, las cajas, las ventas, los usuarios y la apariencia de su tienda. También puede anular ventas válidas.
 
-Si el producto ya existe, se muestra directamente el formulario para confirmar una entrada o una salida. El stock nunca se modifica solamente por escanear: siempre se solicita confirmación para evitar movimientos accidentales.
+### Cajero
 
-La imagen de la cámara se procesa dentro del navegador y no se almacena ni se envía al servidor.
+Abre su turno, arma ventas, cobra, imprime tickets y realiza el cierre de caja. Solo puede aplicar descuentos dentro del límite definido por un administrador.
 
-Formatos compatibles:
+## Flujo de una venta
 
-- EAN-13 y EAN-8.
-- UPC-A y UPC-E.
-- Code 128 y Code 39.
-- ITF.
+```text
+Abrir turno → Escanear productos → Armar carrito → Cobrar → Actualizar stock → Imprimir ticket → Cerrar turno
+```
+
+El precio y el stock siempre se comprueban en el backend. Una venta, sus artículos, los pagos y los movimientos de inventario se guardan en una única transacción para evitar datos parciales.
+
+## Códigos de barras
+
+El lector admite EAN-13, EAN-8, UPC-A, UPC-E, Code 128, Code 39 e ITF.
+
+Desde **Productos**, un administrador puede escanear un código nuevo y completar el nombre, precio, stock mínimo y stock inicial. Desde **Caja**, un código desconocido no crea productos: informa que debe registrarlo un administrador.
+
+La imagen de la cámara se procesa dentro del navegador. No se almacena ni se envía al servidor.
+
+## Tickets
+
+Los comprobantes incluyen tienda, número de venta, fecha, caja, cajero, artículos, descuentos, total, medios de pago, efectivo recibido y vuelto.
+
+Se imprimen mediante el diálogo del navegador y contienen la leyenda:
+
+> Comprobante interno — no válido como factura
+
+No se guarda un PDF. La aplicación conserva una copia inmutable de los datos usados para poder reimprimir el comprobante aunque después cambien el producto o la identidad visual de la tienda.
 
 ## Cómo está construido
 
 ```text
-Vercel                    Render                     Supabase
-React + TypeScript  --->  Spring Boot + Java  --->  PostgreSQL
-      interfaz                 API y reglas              datos
+Vercel                    Render                         Supabase
+React + TypeScript  →     Spring Boot + Spring Security → Auth + PostgreSQL + Storage
+Interfaz                  API y reglas de negocio       Identidad, datos y logos
 ```
 
-El backend sigue una arquitectura por capas:
+El backend mantiene la separación habitual por responsabilidades:
 
 ```text
-Controller -> Service -> Repository -> Entity -> PostgreSQL
+Controller → Service → Repository → Entity → PostgreSQL
 ```
-
-- **Controller** recibe las solicitudes de la aplicación.
-- **Service** aplica las reglas del negocio.
-- **Repository** consulta y guarda la información.
-- **Entity** representa los datos almacenados en PostgreSQL.
-
-### Tecnologías principales
 
 | Parte | Tecnologías |
 |---|---|
-| Frontend | React, TypeScript, Vite, TanStack Query y Tailwind CSS |
-| Backend | Java 21, Spring Boot, Spring Data JPA y Bean Validation |
-| Base de datos | PostgreSQL, Supabase y Flyway |
-| Lectura de códigos | ZXing para navegador |
+| Frontend | React, TypeScript, Vite, TanStack Query, Tailwind CSS y Radix UI |
+| Backend | Java 21, Spring Boot, Spring Security, Spring Data JPA y Flyway |
+| Servicios | Supabase Auth, PostgreSQL y Storage |
+| Códigos de barras | ZXing para navegador |
 | Despliegue | Vercel y Render |
-| Pruebas | JUnit, Testcontainers, Vitest y Testing Library |
+| Pruebas | JUnit, Mockito, Testcontainers, Vitest y Testing Library |
 
-## Reglas importantes del inventario
+## Seguridad y consistencia
 
-La aplicación protege la consistencia del stock desde el backend:
+- Supabase Auth inicia las sesiones con email y contraseña.
+- Spring valida la firma, el emisor, la audiencia y el vencimiento de cada JWT.
+- Los roles se consultan en la base de datos; el frontend no decide los permisos.
+- Cambiar el identificador de una tienda en una URL no permite acceder a sus datos.
+- Los productos y movimientos siempre quedan asociados a una tienda.
+- El stock no puede quedar en negativo, incluso con dos cajas vendiendo al mismo tiempo.
+- La clave administrativa de Supabase solo se utiliza en el backend.
+- Las tablas operativas no se exponen directamente al navegador mediante la Data API.
 
-- Cada producto tiene un código único.
-- El stock y el stock mínimo no pueden ser negativos.
-- Un producto inactivo no puede recibir movimientos.
-- Una salida no puede dejar el stock por debajo de cero.
-- El alta con stock inicial guarda el producto y su primer movimiento en una única transacción.
-- Los movimientos concurrentes se controlan para reducir el riesgo de vender dos veces la misma unidad.
-
-## Servicios publicados
+## Servicios
 
 - [Aplicación web](https://stock-control-mvp.vercel.app)
-- [API](https://stock-control-api-emda.onrender.com)
-- [Productos en la API](https://stock-control-api-emda.onrender.com/api/v1/products)
-- [Estado del backend](https://stock-control-api-emda.onrender.com/actuator/health)
+- [Estado de la API](https://stock-control-api-emda.onrender.com/actuator/health)
 
-## Estado del proyecto
+## Alcance actual
 
-Stock Control es un MVP funcional que continúa creciendo.
-
-La siguiente etapa será incorporar inicio de sesión y permisos para diferenciar entre un **administrador** y un **usuario operador**. En la versión actual todavía no hay autenticación, por lo que debe considerarse una demostración y no utilizarse para almacenar información sensible o el inventario real de una tienda.
-
-## Documentación
-
-Si quieres entender cómo funciona el proyecto desde cero, consulta la **[guía de estudio completa](docs/GUIA_DE_ESTUDIO.md)**. Explica el recorrido de la información, el backend, el frontend, la base de datos, las pruebas, el despliegue y la futura implementación de usuarios y roles.
-
----
-
-Proyecto desarrollado como una aplicación real de aprendizaje, construida paso a paso y preparada para seguir incorporando nuevas funciones.
+El ticket es un comprobante interno y no una factura fiscal. La integración con ARCA, productos fraccionados, devoluciones parciales, clientes, sucursales internas y funcionamiento sin conexión quedan fuera de esta versión.

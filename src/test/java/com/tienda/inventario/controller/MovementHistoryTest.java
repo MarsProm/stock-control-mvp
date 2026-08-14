@@ -31,10 +31,11 @@ class MovementHistoryTest {
     @Test
     void returnsEmptyHistoryWithStablePageShape() throws Exception {
         UUID productId = UUID.randomUUID();
-        when(movementService.history(productId, null, null, 0, 20))
+        UUID businessId = UUID.randomUUID();
+        when(movementService.history(businessId, productId, null, null, 0, 20))
                 .thenReturn(new PageResponse<>(List.of(), new PageResponse.PageMetadata(0, 20, 0, 0)));
 
-        mockMvc.perform(get("/api/v1/products/{id}/movements", productId))
+        mockMvc.perform(get("/api/v1/businesses/{businessId}/products/{id}/movements", businessId, productId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty())
                 .andExpect(jsonPath("$.page.totalElements").value(0));

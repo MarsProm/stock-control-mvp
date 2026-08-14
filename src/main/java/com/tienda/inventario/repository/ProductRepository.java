@@ -19,6 +19,20 @@ public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpec
 
     Optional<Product> findByCodeIgnoreCase(String code);
 
+    boolean existsByBusiness_IdAndCodeIgnoreCase(UUID businessId, String code);
+
+    boolean existsByBusiness_IdAndCodeIgnoreCaseAndIdNot(UUID businessId, String code, UUID id);
+
+    Optional<Product> findByBusiness_IdAndCodeIgnoreCase(UUID businessId, String code);
+
+    Optional<Product> findByIdAndBusiness_Id(UUID id, UUID businessId);
+
+    boolean existsByIdAndBusiness_Id(UUID id, UUID businessId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select p from Product p where p.id = :id and p.business.id = :businessId")
+    Optional<Product> findByIdForUpdate(@Param("businessId") UUID businessId, @Param("id") UUID id);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select p from Product p where p.id = :id")
     Optional<Product> findByIdForUpdate(@Param("id") UUID id);

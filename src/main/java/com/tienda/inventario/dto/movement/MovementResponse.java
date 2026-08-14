@@ -12,6 +12,8 @@ public record MovementResponse(
         long quantity,
         String reason,
         long balanceAfter,
+        UUID actorUserId,
+        UUID saleId,
         Instant createdAt
 ) {
 }

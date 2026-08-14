@@ -16,10 +16,21 @@ public interface StockMovementRepository extends JpaRepository<StockMovement, UU
 
     Page<StockMovement> findByProduct_IdAndCreatedAtLessThanEqual(UUID productId, Instant to, Pageable pageable);
 
-    Page<StockMovement> findByProduct_IdAndCreatedAtBetween(
+    Page<StockMovement> findByProduct_IdAndCreatedAtBetween(UUID productId, Instant from, Instant to, Pageable pageable);
+
+    Page<StockMovement> findByBusiness_IdAndProduct_Id(UUID businessId, UUID productId, Pageable pageable);
+
+    Page<StockMovement> findByBusiness_IdAndProduct_IdAndCreatedAtGreaterThanEqual(UUID businessId, UUID productId, Instant from, Pageable pageable);
+
+    Page<StockMovement> findByBusiness_IdAndProduct_IdAndCreatedAtLessThanEqual(UUID businessId, UUID productId, Instant to, Pageable pageable);
+
+    Page<StockMovement> findByBusiness_IdAndProduct_IdAndCreatedAtBetween(
+            UUID businessId,
             UUID productId,
             Instant from,
             Instant to,
             Pageable pageable
     );
+
+    java.util.List<StockMovement> findBySale_IdOrderByCreatedAtAsc(UUID saleId);
 }

@@ -15,6 +15,8 @@ public class MovementMapper {
                 movement.getQuantity(),
                 movement.getReason(),
                 movement.getBalanceAfter(),
+                movement.getActorUserId(),
+                movement.getSale() == null ? null : movement.getSale().getId(),
                 movement.getCreatedAt()
         );
     }

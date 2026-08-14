@@ -13,8 +13,8 @@ import java.util.Arrays;
 @OpenAPIDefinition(
         info = @Info(
                 title = "Stock Control API",
-                version = "0.1.0",
-                description = "API para productos, existencias y movimientos de una tienda"
+                version = "1.0.0",
+                description = "API multi-tienda para inventario, cajas, ventas, usuarios y tickets"
         )
 )
 public class WebConfig implements WebMvcConfigurer {

@@ -23,7 +23,7 @@ import java.net.URI;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/products")
+@RequestMapping("/api/v1/businesses/{businessId}/products")
 @Tag(name = "Productos")
 public class ProductController {
 
@@ -34,23 +34,24 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductResponse> create(@Valid @RequestBody CreateProductRequest request) {
-        ProductResponse response = productService.create(request);
-        return ResponseEntity.created(URI.create("/api/v1/products/" + response.id())).body(response);
+    public ResponseEntity<ProductResponse> create(@PathVariable UUID businessId, @Valid @RequestBody CreateProductRequest request) {
+        ProductResponse response = productService.create(businessId, request);
+        return ResponseEntity.created(URI.create("/api/v1/businesses/" + businessId + "/products/" + response.id())).body(response);
     }
 
     @GetMapping("/{productId}")
-    public ProductResponse get(@PathVariable UUID productId) {
-        return productService.get(productId);
+    public ProductResponse get(@PathVariable UUID businessId, @PathVariable UUID productId) {
+        return productService.get(businessId, productId);
     }
 
     @GetMapping("/by-code")
-    public ProductResponse getByCode(@RequestParam String code) {
-        return productService.getByCode(code);
+    public ProductResponse getByCode(@PathVariable UUID businessId, @RequestParam String code) {
+        return productService.getByCode(businessId, code);
     }
 
     @GetMapping
     public PageResponse<ProductResponse> search(
+            @PathVariable UUID businessId,
             @RequestParam(required = false) String query,
             @RequestParam(defaultValue = "true") Boolean active,
             @RequestParam(defaultValue = "false") boolean lowStock,
@@ -58,22 +59,24 @@ public class ProductController {
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "name,asc") String sort
     ) {
-        return productService.search(query, active, lowStock, page, size, sort);
+        return productService.search(businessId, query, active, lowStock, page, size, sort);
     }
 
     @PutMapping("/{productId}")
     public ProductResponse update(
+            @PathVariable UUID businessId,
             @PathVariable UUID productId,
             @Valid @RequestBody UpdateProductRequest request
     ) {
-        return productService.update(productId, request);
+        return productService.update(businessId, productId, request);
     }
 
     @PatchMapping("/{productId}/status")
     public ProductResponse deactivate(
+            @PathVariable UUID businessId,
             @PathVariable UUID productId,
             @Valid @RequestBody ProductStatusRequest request
     ) {
-        return productService.deactivate(productId);
+        return productService.deactivate(businessId, productId);
     }
 }
