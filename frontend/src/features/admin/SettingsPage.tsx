@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ImageUp, Palette, Save } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { errorMessage } from "../../lib/api";
+import { AccessibleColorPicker } from "./AccessibleColorPicker";
 import {
   getSettings,
   updateSettings,
@@ -69,27 +70,19 @@ export function SettingsPage() {
                 }
               />
             </Field>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Color principal">
-                <input
-                  className="h-11 w-full rounded-xl border border-slate-300 bg-white p-1"
-                  type="color"
-                  value={form.primaryColor}
-                  onChange={(event) =>
-                    setForm({ ...form, primaryColor: event.target.value })
-                  }
-                />
-              </Field>
-              <Field label="Color de acento">
-                <input
-                  className="h-11 w-full rounded-xl border border-slate-300 bg-white p-1"
-                  type="color"
-                  value={form.accentColor}
-                  onChange={(event) =>
-                    setForm({ ...form, accentColor: event.target.value })
-                  }
-                />
-              </Field>
+            <div className="grid gap-5 sm:col-span-2 lg:grid-cols-2">
+              <AccessibleColorPicker
+                label="Color principal"
+                name="primary-color"
+                value={form.primaryColor}
+                onChange={(primaryColor) => setForm({ ...form, primaryColor })}
+              />
+              <AccessibleColorPicker
+                label="Color de acento"
+                name="accent-color"
+                value={form.accentColor}
+                onChange={(accentColor) => setForm({ ...form, accentColor })}
+              />
             </div>
             <Field label="Encabezado del ticket">
               <input
