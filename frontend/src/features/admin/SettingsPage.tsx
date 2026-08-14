@@ -9,6 +9,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { errorMessage } from "../../lib/api";
 import type { Me } from "../auth/types";
 import { AccessibleColorPicker } from "./AccessibleColorPicker";
+import { normalizeBrandColor } from "./brand-colors";
 import {
   getSettings,
   updateSettings,
@@ -24,7 +25,12 @@ export function SettingsPage() {
   useEffect(() => {
     if (settings.data) {
       const { id: _id, slug: _slug, logoUrl: _logo, ...values } = settings.data;
-      setForm(values);
+      const brandColor = normalizeBrandColor(values.primaryColor);
+      setForm({
+        ...values,
+        primaryColor: brandColor,
+        accentColor: brandColor,
+      });
     }
   }, [settings.data]);
   const save = useMutation({
@@ -40,7 +46,10 @@ export function SettingsPage() {
   if (!form) return <div className="panel h-64 animate-pulse" />;
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    save.mutate(form);
+    save.mutate({
+      ...form,
+      accentColor: form.primaryColor,
+    });
   };
   return (
     <>
@@ -68,18 +77,18 @@ export function SettingsPage() {
                 }
               />
             </Field>
-            <div className="grid gap-5 sm:col-span-2 lg:grid-cols-2">
+            <div className="sm:col-span-2">
               <AccessibleColorPicker
-                label="Color principal"
-                name="primary-color"
+                label="Color de marca"
+                name="brand-color"
                 value={form.primaryColor}
-                onChange={(primaryColor) => setForm({ ...form, primaryColor })}
-              />
-              <AccessibleColorPicker
-                label="Color de acento"
-                name="accent-color"
-                value={form.accentColor}
-                onChange={(accentColor) => setForm({ ...form, accentColor })}
+                onChange={(brandColor) =>
+                  setForm({
+                    ...form,
+                    primaryColor: brandColor,
+                    accentColor: brandColor,
+                  })
+                }
               />
             </div>
             <Field label="Encabezado del ticket">

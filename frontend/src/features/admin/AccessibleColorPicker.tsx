@@ -1,5 +1,9 @@
 import { Check } from "lucide-react";
-import { BRAND_COLORS, contrastWithWhite } from "./brand-colors";
+import {
+  BRAND_COLORS,
+  contrastWithWhite,
+  normalizeBrandColor,
+} from "./brand-colors";
 
 type AccessibleColorPickerProps = {
   label: string;
@@ -14,9 +18,10 @@ export function AccessibleColorPicker({
   value,
   onChange,
 }: AccessibleColorPickerProps) {
-  const selected =
-    BRAND_COLORS.find((color) => color.value === value.toUpperCase()) ??
-    BRAND_COLORS[0];
+  const normalizedValue = normalizeBrandColor(value);
+  const selected = BRAND_COLORS.find(
+    (color) => color.value === normalizedValue,
+  )!;
   const descriptionId = `${name}-color-description`;
 
   return (
@@ -24,9 +29,9 @@ export function AccessibleColorPicker({
       <legend className="px-1 text-sm font-semibold text-slate-700">
         {label}
       </legend>
-      <div className="mt-2 grid grid-cols-7 gap-2 sm:grid-cols-9 lg:grid-cols-7">
+      <div className="mt-2 grid grid-cols-5 gap-2">
         {BRAND_COLORS.map((color) => {
-          const checked = color.value === value.toUpperCase();
+          const checked = color.value === normalizedValue;
           return (
             <label
               key={color.value}
@@ -67,7 +72,8 @@ export function AccessibleColorPicker({
         </span>
       </div>
       <p className="mt-2 text-xs leading-5 text-slate-500">
-        Todos los colores permiten texto blanco con contraste WCAG AA.
+        Usaremos este color solo en botones, controles y detalles de la marca.
+        Todas las opciones permiten texto blanco con contraste WCAG AA.
       </p>
     </fieldset>
   );

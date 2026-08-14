@@ -27,8 +27,7 @@ export function ReceiptView({
       className="receipt-sheet mx-auto w-full max-w-md rounded-2xl bg-white p-6 text-slate-950 shadow-xl print:shadow-none"
       style={
         {
-          "--receipt-primary": sale.primaryColor,
-          "--receipt-accent": sale.accentColor,
+          "--receipt-brand": sale.primaryColor,
         } as React.CSSProperties
       }
     >

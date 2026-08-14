@@ -1,18 +1,19 @@
 export const BRAND_COLORS = [
-  { name: "Pizarra", value: "#334155" },
-  { name: "Gris", value: "#475569" },
-  { name: "Azul", value: "#1D4ED8" },
+  { name: "Azul profesional", value: "#1D4ED8" },
+  { name: "Verde comercio", value: "#047857" },
   { name: "Índigo", value: "#4338CA" },
-  { name: "Violeta", value: "#6D28D9" },
-  { name: "Fucsia", value: "#A21CAF" },
-  { name: "Rosa", value: "#BE123C" },
-  { name: "Rojo", value: "#B91C1C" },
-  { name: "Naranja", value: "#C2410C" },
-  { name: "Ámbar", value: "#92400E" },
-  { name: "Esmeralda", value: "#047857" },
-  { name: "Turquesa", value: "#0F766E" },
-  { name: "Cian", value: "#0E7490" },
+  { name: "Bordó", value: "#B91C1C" },
+  { name: "Gris azulado", value: "#334155" },
 ] as const;
+
+export const DEFAULT_BRAND_COLOR = "#334155";
+
+export function normalizeBrandColor(value: string) {
+  const normalizedValue = value.toUpperCase();
+  return BRAND_COLORS.some((color) => color.value === normalizedValue)
+    ? normalizedValue
+    : DEFAULT_BRAND_COLOR;
+}
 
 export function contrastWithWhite(hexColor: string) {
   const channels = [1, 3, 5].map((position) =>

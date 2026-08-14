@@ -12,12 +12,23 @@
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-  color: #0f172a;
-  background: #f8fafc;
+  color: var(--text);
+  background: var(--surface-muted);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  --business-primary: #334155;
-  --business-accent: #047857;
+  --brand: #334155;
+  --brand-foreground: #ffffff;
+  --surface: #ffffff;
+  --surface-muted: #f8fafc;
+  --surface-subtle: #f1f5f9;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --text-muted: #475569;
+  --sidebar: #0f172a;
+  --sidebar-active: #1e293b;
+  --success: #047857;
+  --warning: #b45309;
+  --danger: #dc2626;
 }
 
 * {
@@ -28,14 +39,15 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background: var(--surface-muted);
 }
 
 .receipt-sheet h1 {
-  color: var(--receipt-primary, #334155);
+  color: var(--receipt-brand, #334155);
 }
 
 .receipt-sheet .receipt-legal {
-  color: var(--receipt-accent, #047857);
+  color: var(--text-muted);
 }
 
 html {
@@ -55,8 +67,8 @@ button:not(:disabled),
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--business-accent) 22%, white);
-  color: #0f172a;
+  background: #dbeafe;
+  color: var(--text);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -76,15 +88,16 @@ button:not(:disabled),
   }
 
   .form-input:focus {
-    border-color: var(--business-primary);
-    box-shadow: 0 0 0 3px
-      color-mix(in srgb, var(--business-primary) 20%, transparent);
+    border-color: var(--brand);
+    outline: 2px solid var(--brand);
+    outline-offset: 1px;
   }
 
   .button-primary {
     @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
-    background: var(--business-primary);
-    outline-color: var(--business-primary);
+    background: var(--brand);
+    color: var(--brand-foreground);
+    outline-color: var(--brand);
   }
 
   .button-primary:hover:not(:disabled) {
@@ -96,24 +109,29 @@ button:not(:disabled),
   }
 
   .button-danger {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    background: var(--danger);
+    outline-color: var(--danger);
+  }
+
+  .button-danger:hover:not(:disabled) {
+    background: #b91c1c;
   }
 
   .icon-button {
     @apply grid size-11 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-100 hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
-    outline-color: var(--business-primary);
+    outline-color: var(--brand);
   }
 
   .movement-option {
     @apply flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700 transition focus-within:outline-2 focus-within:outline-offset-2 hover:bg-slate-50;
-    outline-color: var(--business-primary);
+    outline-color: var(--brand);
   }
 
   .movement-option-active {
-    border-color: var(--business-primary);
-    background: var(--business-primary);
-    color: white;
-    box-shadow: 0 0 0 1px var(--business-primary);
+    border-color: var(--brand);
+    background: var(--brand);
+    color: var(--brand-foreground);
   }
 
   .page-header {
@@ -122,95 +140,83 @@ button:not(:disabled),
 
   .eyebrow {
     @apply text-sm font-semibold;
-    color: var(--business-accent);
+    color: var(--text-muted);
   }
 
   .brand-text {
-    color: var(--business-accent);
+    color: var(--brand);
   }
 
   .brand-link {
     @apply inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold transition;
-    color: var(--business-accent);
+    color: var(--brand);
   }
 
   .brand-link:hover {
-    background: color-mix(in srgb, var(--business-accent) 10%, white);
+    background: var(--surface-subtle);
   }
 
   .brand-surface {
-    background: var(--business-accent);
-    color: white;
+    background: var(--brand);
+    color: var(--brand-foreground);
   }
 
   .brand-navigation-active {
-    background: var(--business-primary);
+    position: relative;
+    background: var(--sidebar-active);
     color: white;
-    box-shadow:
-      0 10px 24px
-        color-mix(in srgb, var(--business-primary) 34%, transparent),
-      inset 0 1px rgb(255 255 255 / 16%);
+  }
+
+  .brand-navigation-active::before {
+    position: absolute;
+    inset-block: 0.75rem;
+    left: 0;
+    width: 3px;
+    border-radius: 999px;
+    background: var(--brand);
+    content: "";
+  }
+
+  .brand-navigation-mobile-active {
+    background: var(--surface-subtle);
+    color: var(--text);
+    box-shadow: inset 0 -3px var(--brand);
   }
 
   .business-sidebar {
-    border-color: color-mix(
-      in srgb,
-      var(--business-accent) 34%,
-      #1e293b
-    );
-    background:
-      radial-gradient(
-        circle at 10% 0%,
-        color-mix(in srgb, var(--business-accent) 22%, transparent),
-        transparent 30%
-      ),
-      linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--business-primary) 18%, #020617),
-        color-mix(in srgb, var(--business-primary) 8%, #020617)
-      );
-    box-shadow: 12px 0 32px
-      color-mix(in srgb, var(--business-primary) 16%, transparent);
+    border-color: var(--sidebar-active);
+    background: var(--sidebar);
+    box-shadow: 4px 0 16px rgb(15 23 42 / 8%);
   }
 
   .business-sidebar-link:hover {
-    background: color-mix(
-      in srgb,
-      var(--business-accent) 20%,
-      transparent
-    );
+    background: var(--sidebar-active);
   }
 
   .business-sidebar-divider {
-    border-color: color-mix(
-      in srgb,
-      var(--business-accent) 24%,
-      #334155
-    );
+    border-color: #334155;
   }
 
   .business-logo {
-    box-shadow: 0 8px 22px
-      color-mix(in srgb, var(--business-accent) 24%, transparent);
+    box-shadow: 0 4px 12px rgb(2 6 23 / 18%);
   }
 
   .brand-interactive {
-    outline-color: var(--business-primary);
+    outline-color: var(--brand);
   }
 
   .brand-interactive:hover {
-    border-color: var(--business-accent);
+    border-color: #94a3b8;
   }
 
   .brand-choice-active {
-    border-color: var(--business-primary);
-    background: var(--business-primary);
-    color: white;
-    box-shadow: 0 0 0 1px var(--business-primary);
+    border-color: var(--brand);
+    background: var(--brand);
+    color: var(--brand-foreground);
   }
 
   .brand-checkbox {
-    accent-color: var(--business-primary);
+    accent-color: var(--brand);
   }
 
   .page-title {
@@ -230,11 +236,13 @@ button:not(:disabled),
   }
 
   .status-success {
-    @apply bg-emerald-100 text-emerald-800;
+    background: #d1fae5;
+    color: var(--success);
   }
 
   .status-danger {
-    @apply bg-red-100 text-red-700;
+    background: #fee2e2;
+    color: #b91c1c;
   }
 
   .status-muted {

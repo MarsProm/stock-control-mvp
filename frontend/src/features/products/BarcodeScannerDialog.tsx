@@ -240,7 +240,7 @@ export function BarcodeScannerDialog({
               <div
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-[18%_10%] rounded-2xl border-2 shadow-[0_0_0_999px_rgba(2,6,23,0.38)]"
-                style={{ borderColor: "var(--business-accent)" }}
+                style={{ borderColor: "var(--brand)" }}
               />
               {processing ? <ProcessingOverlay /> : null}
             </div>

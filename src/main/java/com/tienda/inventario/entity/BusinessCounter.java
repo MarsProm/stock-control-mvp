@@ -31,7 +31,6 @@ public class BusinessCounter {
 
     public BusinessCounter(Business business) {
         this.business = business;
-        this.businessId = business.getId();
         this.nextSaleNumber = 1;
     }
 

@@ -66,8 +66,7 @@ export function AppShell() {
       className="min-h-dvh bg-slate-50 text-slate-950"
       style={
         {
-          "--business-primary": business?.primaryColor,
-          "--business-accent": business?.accentColor,
+          "--brand": business?.primaryColor,
         } as React.CSSProperties
       }
     >
@@ -86,7 +85,7 @@ export function AppShell() {
               className="business-logo size-11 rounded-xl object-cover"
             />
           ) : (
-            <span className="business-logo grid size-11 place-items-center rounded-xl bg-[var(--business-accent)] text-white">
+            <span className="business-logo grid size-11 place-items-center rounded-xl bg-[var(--brand)] text-white">
               <PackageCheck />
             </span>
           )}
@@ -152,7 +151,7 @@ export function AppShell() {
               key={to}
               to={to}
               className={({ isActive }) =>
-                `flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-3 text-sm font-semibold ${isActive ? "brand-navigation-active" : "bg-slate-100 text-slate-700"}`
+                `flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-3 text-sm font-semibold transition ${isActive ? "brand-navigation-mobile-active" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`
               }
             >
               <Icon size={17} />
