@@ -29,7 +29,7 @@ export function DashboardPage() {
   return (
     <>
       <header className="mb-8">
-        <p className="mb-2 text-sm font-semibold text-emerald-700">
+        <p className="eyebrow mb-2">
           Resumen operativo
         </p>
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -94,7 +94,7 @@ export function DashboardPage() {
           </div>
           <Link
             to="/products"
-            className="inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"
+            className="brand-link"
           >
             Ver catalogo <ArrowRight aria-hidden="true" size={17} />
           </Link>

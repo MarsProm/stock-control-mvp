@@ -1,7 +1,13 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  type QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { ImageUp, Palette, Save } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { errorMessage } from "../../lib/api";
+import type { Me } from "../auth/types";
 import { AccessibleColorPicker } from "./AccessibleColorPicker";
 import {
   getSettings,
@@ -23,21 +29,13 @@ export function SettingsPage() {
   }, [settings.data]);
   const save = useMutation({
     mutationFn: updateSettings,
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["settings"] }),
-        queryClient.invalidateQueries({ queryKey: ["me"] }),
-      ]);
-    },
+    onSuccess: (updatedSettings) =>
+      syncBusinessSettings(queryClient, updatedSettings),
   });
   const logo = useMutation({
     mutationFn: uploadLogo,
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["settings"] }),
-        queryClient.invalidateQueries({ queryKey: ["me"] }),
-      ]);
-    },
+    onSuccess: (updatedSettings) =>
+      syncBusinessSettings(queryClient, updatedSettings),
   });
   if (!form) return <div className="panel h-64 animate-pulse" />;
   const submit = (event: FormEvent) => {
@@ -187,6 +185,36 @@ export function SettingsPage() {
     </>
   );
 }
+
+function syncBusinessSettings(
+  queryClient: QueryClient,
+  settings: BusinessSettings,
+) {
+  queryClient.setQueryData(["settings"], settings);
+  queryClient.setQueryData<Me>(["me"], (current) =>
+    current
+      ? {
+          ...current,
+          businesses: current.businesses.map((business) =>
+            business.id === settings.id
+              ? {
+                  ...business,
+                  name: settings.name,
+                  slug: settings.slug,
+                  logoUrl: settings.logoUrl,
+                  primaryColor: settings.primaryColor,
+                  accentColor: settings.accentColor,
+                  inventoryEnabled: settings.inventoryEnabled,
+                  posEnabled: settings.posEnabled,
+                  reportsEnabled: settings.reportsEnabled,
+                }
+              : business,
+          ),
+        }
+      : current,
+  );
+}
+
 function Field({
   label,
   children,
@@ -216,7 +244,7 @@ function Toggle({
         type="checkbox"
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
-        className="size-5 accent-emerald-600"
+        className="brand-checkbox size-5"
       />
       {label}
     </label>

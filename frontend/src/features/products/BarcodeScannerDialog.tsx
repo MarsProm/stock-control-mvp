@@ -182,7 +182,7 @@ export function BarcodeScannerDialog({
       <section className="min-h-dvh bg-white p-5 shadow-2xl sm:min-h-0 sm:rounded-3xl sm:p-7">
         <header className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <p className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+            <p className="brand-text mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em]">
               <ScanBarcode aria-hidden="true" size={18} /> Carga rapida
             </p>
             <h2
@@ -239,7 +239,8 @@ export function BarcodeScannerDialog({
               />
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-[18%_10%] rounded-2xl border-2 border-emerald-400 shadow-[0_0_0_999px_rgba(2,6,23,0.38)]"
+                className="pointer-events-none absolute inset-[18%_10%] rounded-2xl border-2 shadow-[0_0_0_999px_rgba(2,6,23,0.38)]"
+                style={{ borderColor: "var(--business-accent)" }}
               />
               {processing ? <ProcessingOverlay /> : null}
             </div>
@@ -334,7 +335,7 @@ function ModeButton({
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 ${
+      className={`brand-interactive flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 ${
         active
           ? "bg-white text-slate-950 shadow-sm"
           : "text-slate-600 hover:text-slate-950"

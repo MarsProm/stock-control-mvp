@@ -72,7 +72,7 @@ export function ProductForm({
       >
         <header className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+            <p className="brand-text mb-1 text-xs font-semibold uppercase tracking-[0.18em]">
               Catalogo
             </p>
             <h2
@@ -85,7 +85,7 @@ export function ProductForm({
           <button
             type="button"
             onClick={onCancel}
-            className="grid size-11 place-items-center rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-emerald-600"
+            className="icon-button"
             aria-label="Cerrar formulario"
           >
             <X aria-hidden="true" size={20} />

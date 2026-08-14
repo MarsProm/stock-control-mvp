@@ -98,9 +98,7 @@ export function ProductsPage() {
     <>
       <header className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="mb-2 text-sm font-semibold text-emerald-700">
-            Catalogo
-          </p>
+          <p className="eyebrow mb-2">Catalogo</p>
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
             Productos
           </h1>

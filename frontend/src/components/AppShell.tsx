@@ -101,7 +101,7 @@ export function AppShell() {
               key={to}
               to={to}
               className={({ isActive }) =>
-                `flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition ${isActive ? "bg-white text-slate-950" : "text-slate-300 hover:bg-slate-800 hover:text-white"}`
+                `flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition ${isActive ? "brand-navigation-active" : "text-slate-300 hover:bg-slate-800 hover:text-white"}`
               }
             >
               <Icon size={19} aria-hidden="true" />
@@ -152,7 +152,7 @@ export function AppShell() {
               key={to}
               to={to}
               className={({ isActive }) =>
-                `flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-3 text-sm font-semibold ${isActive ? "bg-slate-950 text-white" : "bg-slate-100 text-slate-700"}`
+                `flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-3 text-sm font-semibold ${isActive ? "brand-navigation-active" : "bg-slate-100 text-slate-700"}`
               }
             >
               <Icon size={17} />

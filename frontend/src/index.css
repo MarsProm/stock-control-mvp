@@ -55,8 +55,8 @@ button:not(:disabled),
 }
 
 ::selection {
-  background: #a7f3d0;
-  color: #064e3b;
+  background: color-mix(in srgb, var(--business-accent) 22%, white);
+  color: #0f172a;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -72,7 +72,13 @@ button:not(:disabled),
 
 @layer components {
   .form-input {
-    @apply min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20;
+    @apply min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400;
+  }
+
+  .form-input:focus {
+    border-color: var(--business-primary);
+    box-shadow: 0 0 0 3px
+      color-mix(in srgb, var(--business-primary) 20%, transparent);
   }
 
   .button-primary {
@@ -94,15 +100,20 @@ button:not(:disabled),
   }
 
   .icon-button {
-    @apply grid size-11 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-100 hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply grid size-11 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-100 hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    outline-color: var(--business-primary);
   }
 
   .movement-option {
-    @apply flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700 transition focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-emerald-600 hover:bg-slate-50;
+    @apply flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700 transition focus-within:outline-2 focus-within:outline-offset-2 hover:bg-slate-50;
+    outline-color: var(--business-primary);
   }
 
   .movement-option-active {
-    @apply border-emerald-600 bg-emerald-50 text-emerald-800 ring-1 ring-emerald-600;
+    border-color: var(--business-primary);
+    background: var(--business-primary);
+    color: white;
+    box-shadow: 0 0 0 1px var(--business-primary);
   }
 
   .page-header {
@@ -110,7 +121,50 @@ button:not(:disabled),
   }
 
   .eyebrow {
-    @apply text-sm font-semibold text-emerald-700;
+    @apply text-sm font-semibold;
+    color: var(--business-accent);
+  }
+
+  .brand-text {
+    color: var(--business-accent);
+  }
+
+  .brand-link {
+    @apply inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold transition;
+    color: var(--business-accent);
+  }
+
+  .brand-link:hover {
+    background: color-mix(in srgb, var(--business-accent) 10%, white);
+  }
+
+  .brand-surface {
+    background: var(--business-accent);
+    color: white;
+  }
+
+  .brand-navigation-active {
+    background: var(--business-primary);
+    color: white;
+  }
+
+  .brand-interactive {
+    outline-color: var(--business-primary);
+  }
+
+  .brand-interactive:hover {
+    border-color: var(--business-accent);
+  }
+
+  .brand-choice-active {
+    border-color: var(--business-primary);
+    background: var(--business-primary);
+    color: white;
+    box-shadow: 0 0 0 1px var(--business-primary);
+  }
+
+  .brand-checkbox {
+    accent-color: var(--business-primary);
   }
 
   .page-title {

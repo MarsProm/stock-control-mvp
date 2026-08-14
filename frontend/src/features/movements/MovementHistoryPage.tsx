@@ -32,9 +32,7 @@ export function MovementHistoryPage() {
   return (
     <>
       <header className="mb-7">
-        <p className="mb-2 text-sm font-semibold text-emerald-700">
-          Trazabilidad
-        </p>
+        <p className="eyebrow mb-2">Trazabilidad</p>
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
           Historial de movimientos
         </h1>

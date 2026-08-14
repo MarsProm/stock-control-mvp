@@ -102,7 +102,8 @@ export function PosPage() {
     }) => closeShift(shiftId, countedCash),
     onSuccess: async () => {
       setCart([]);
-      await queryClient.invalidateQueries({ queryKey: ["shift"] });
+      queryClient.setQueryData(["shift", "current"], null);
+      await queryClient.invalidateQueries({ queryKey: ["shifts"] });
     },
   });
 
@@ -173,7 +174,7 @@ export function PosPage() {
     <div className="min-h-[calc(100dvh-8rem)]">
       <header className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-emerald-700">Modo cajero</p>
+          <p className="eyebrow">Modo cajero</p>
           <h1 className="mt-1 text-3xl font-semibold tracking-tight">
             Nueva venta
           </h1>
@@ -277,7 +278,7 @@ export function PosPage() {
                   key={product.id}
                   onClick={() => addProduct(product)}
                   disabled={product.currentStock === 0}
-                  className="min-h-32 rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-emerald-500 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 disabled:opacity-50"
+                  className="brand-interactive min-h-32 rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50"
                 >
                   <span className="line-clamp-2 font-semibold">
                     {product.name}
@@ -350,7 +351,7 @@ function OpenShiftPanel({
   const [openingCash, setOpeningCash] = useState(0);
   return (
     <section className="mx-auto max-w-xl rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-      <span className="grid size-14 place-items-center rounded-2xl bg-emerald-100 text-emerald-700">
+      <span className="brand-surface grid size-14 place-items-center rounded-2xl">
         <Banknote />
       </span>
       <h2 className="mt-5 text-2xl font-semibold">Abrir turno de caja</h2>
@@ -677,7 +678,7 @@ function CheckoutDialog({
                     setMethod(id);
                     setCash(total);
                   }}
-                  className={`min-h-20 rounded-xl border p-2 text-sm font-semibold ${method === id ? "border-emerald-600 bg-emerald-50 text-emerald-800 ring-1 ring-emerald-600" : "border-slate-200"}`}
+                  className={`min-h-20 rounded-xl border p-2 text-sm font-semibold ${method === id ? "brand-choice-active" : "border-slate-200"}`}
                 >
                   <Icon className="mx-auto mb-1" size={20} />
                   {label}
