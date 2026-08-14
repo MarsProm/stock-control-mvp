@@ -2,12 +2,17 @@ package com.tienda.inventario.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 class SupabaseAdminClientTest {
@@ -28,6 +33,37 @@ class SupabaseAdminClientTest {
 
         client.invite("admin@tienda.test");
 
+        server.verify();
+    }
+
+    @Test
+    void keepsTheLocalInvitationWhenTheAuthUserAlreadyExists() {
+        RestClient.Builder builder = RestClient.builder();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        SupabaseAdminClient client = createClient(builder);
+
+        server.expect(request -> assertEquals("/auth/v1/invite", request.getURI().getPath()))
+                .andRespond(withStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body("{\"code\":\"user_already_exists\",\"message\":\"User already registered\"}"));
+
+        client.invite("admin@tienda.test");
+
+        server.verify();
+    }
+
+    @Test
+    void propagatesOtherSupabaseAuthErrors() {
+        RestClient.Builder builder = RestClient.builder();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        SupabaseAdminClient client = createClient(builder);
+
+        server.expect(request -> assertEquals("/auth/v1/invite", request.getURI().getPath()))
+                .andRespond(withStatus(HttpStatus.TOO_MANY_REQUESTS)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body("{\"code\":\"over_email_send_rate_limit\"}"));
+
+        assertThrows(RestClientResponseException.class, () -> client.invite("admin@tienda.test"));
         server.verify();
     }
 

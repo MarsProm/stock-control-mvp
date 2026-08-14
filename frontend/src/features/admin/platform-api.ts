@@ -28,7 +28,8 @@ export function inviteInitialAdministrator(
     {
       method: "POST",
       body: JSON.stringify({
-        ...input,
+        email: input.email,
+        displayName: input.displayName,
         role: "ADMIN" satisfies BusinessRole,
         maxDiscountPercent: 100,
       }),

@@ -3,8 +3,10 @@ package com.tienda.inventario.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.util.Map;
+import java.util.Set;
 
 @Component
 public class SupabaseAdminClient {
@@ -38,12 +40,18 @@ public class SupabaseAdminClient {
             }
             return;
         }
-        restClient.post()
-                .uri(uriBuilder -> uriBuilder.path("/auth/v1/invite").queryParam("redirect_to", redirectUrl).build())
-                .header("apikey", secretKey)
-                .body(Map.of("email", email))
-                .retrieve()
-                .toBodilessEntity();
+        try {
+            restClient.post()
+                    .uri(uriBuilder -> uriBuilder.path("/auth/v1/invite").queryParam("redirect_to", redirectUrl).build())
+                    .header("apikey", secretKey)
+                    .body(Map.of("email", email))
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (RestClientResponseException exception) {
+            if (!isExistingUser(exception)) {
+                throw exception;
+            }
+        }
     }
 
     public String uploadLogo(java.util.UUID businessId, String extension, String contentType, byte[] content) {
@@ -59,5 +67,17 @@ public class SupabaseAdminClient {
                 .retrieve()
                 .toBodilessEntity();
         return baseUrl + "/storage/v1/object/public/" + brandingBucket + "/" + objectPath;
+    }
+
+    private boolean isExistingUser(RestClientResponseException exception) {
+        try {
+            SupabaseAuthError error = exception.getResponseBodyAs(SupabaseAuthError.class);
+            return error != null && Set.of("email_exists", "user_already_exists").contains(error.code());
+        } catch (RuntimeException ignored) {
+            return false;
+        }
+    }
+
+    private record SupabaseAuthError(String code) {
     }
 }
