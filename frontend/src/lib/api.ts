@@ -11,7 +11,13 @@ export class ApiError extends Error {
   readonly problem?: ApiProblem;
 
   constructor(status: number, problem?: ApiProblem) {
-    super(problem?.detail ?? "No se pudo completar la operacion");
+    const fallback =
+      status === 401
+        ? "No se pudo validar tu sesión. Intentá nuevamente en unos segundos."
+        : status >= 500
+          ? "El servidor no pudo completar la operación. Intentá nuevamente en unos segundos."
+          : "No se pudo completar la operación";
+    super(problem?.detail ?? fallback);
     this.name = "ApiError";
     this.status = status;
     this.problem = problem;
