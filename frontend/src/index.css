@@ -146,6 +146,52 @@ button:not(:disabled),
   .brand-navigation-active {
     background: var(--business-primary);
     color: white;
+    box-shadow:
+      0 10px 24px
+        color-mix(in srgb, var(--business-primary) 34%, transparent),
+      inset 0 1px rgb(255 255 255 / 16%);
+  }
+
+  .business-sidebar {
+    border-color: color-mix(
+      in srgb,
+      var(--business-accent) 34%,
+      #1e293b
+    );
+    background:
+      radial-gradient(
+        circle at 10% 0%,
+        color-mix(in srgb, var(--business-accent) 22%, transparent),
+        transparent 30%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--business-primary) 18%, #020617),
+        color-mix(in srgb, var(--business-primary) 8%, #020617)
+      );
+    box-shadow: 12px 0 32px
+      color-mix(in srgb, var(--business-primary) 16%, transparent);
+  }
+
+  .business-sidebar-link:hover {
+    background: color-mix(
+      in srgb,
+      var(--business-accent) 20%,
+      transparent
+    );
+  }
+
+  .business-sidebar-divider {
+    border-color: color-mix(
+      in srgb,
+      var(--business-accent) 24%,
+      #334155
+    );
+  }
+
+  .business-logo {
+    box-shadow: 0 8px 22px
+      color-mix(in srgb, var(--business-accent) 24%, transparent);
   }
 
   .brand-interactive {

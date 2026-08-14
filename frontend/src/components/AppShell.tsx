@@ -77,16 +77,16 @@ export function AppShell() {
       >
         Saltar al contenido
       </a>
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-68 border-r border-slate-800 bg-slate-950 p-4 text-white lg:flex lg:flex-col">
+      <aside className="business-sidebar fixed inset-y-0 left-0 z-30 hidden w-68 border-r p-4 text-white lg:flex lg:flex-col">
         <div className="mb-7 flex items-center gap-3 px-2 py-2">
           {business?.logoUrl ? (
             <img
               src={business.logoUrl}
               alt=""
-              className="size-11 rounded-xl object-cover"
+              className="business-logo size-11 rounded-xl object-cover"
             />
           ) : (
-            <span className="grid size-11 place-items-center rounded-xl bg-[var(--business-accent)] text-white">
+            <span className="business-logo grid size-11 place-items-center rounded-xl bg-[var(--business-accent)] text-white">
               <PackageCheck />
             </span>
           )}
@@ -101,7 +101,7 @@ export function AppShell() {
               key={to}
               to={to}
               className={({ isActive }) =>
-                `flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition ${isActive ? "brand-navigation-active" : "text-slate-300 hover:bg-slate-800 hover:text-white"}`
+                `flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition ${isActive ? "brand-navigation-active" : "business-sidebar-link text-slate-300 hover:text-white"}`
               }
             >
               <Icon size={19} aria-hidden="true" />
@@ -109,7 +109,7 @@ export function AppShell() {
             </NavLink>
           ))}
         </nav>
-        <div className="mt-auto space-y-2 border-t border-slate-800 pt-4">
+        <div className="business-sidebar-divider mt-auto space-y-2 border-t pt-4">
           {me && me.businesses.length > 1 ? (
             <button
               type="button"
@@ -117,7 +117,7 @@ export function AppShell() {
                 selectBusiness("");
                 navigate("/select-business");
               }}
-              className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold text-slate-300 hover:bg-slate-800"
+              className="business-sidebar-link flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold text-slate-300"
             >
               <Building2 size={18} /> Cambiar tienda
             </button>
@@ -125,7 +125,7 @@ export function AppShell() {
           <button
             type="button"
             onClick={() => void signOut()}
-            className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold text-slate-300 hover:bg-slate-800"
+            className="business-sidebar-link flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold text-slate-300"
           >
             <LogOut size={18} /> Cerrar sesión
           </button>

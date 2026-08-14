@@ -244,9 +244,13 @@ export function PosPage() {
                 />
               </label>
               <button type="submit" className="button-primary min-h-14 px-6">
-                <ScanBarcode size={20} /> Agregar código
+                <ScanBarcode size={20} /> Agregar por código
               </button>
             </form>
+            <p className="mb-4 text-sm text-slate-500">
+              Escaneá un código y presioná Enter. Para buscar por nombre,
+              elegí el producto en la lista.
+            </p>
             {scanError ? (
               <p
                 role="alert"
