@@ -8,6 +8,7 @@ import com.tienda.inventario.exception.BusinessConflictException;
 import com.tienda.inventario.mapper.MovementMapper;
 import com.tienda.inventario.repository.ProductRepository;
 import com.tienda.inventario.repository.StockMovementRepository;
+import com.tienda.inventario.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -31,6 +32,8 @@ class StockMovementServiceTest {
     private ProductRepository productRepository;
     @Mock
     private StockMovementRepository movementRepository;
+    @Mock
+    private AccessService accessService;
 
     @Test
     void entryUpdatesBalanceAndCreatesHistory() {
@@ -62,5 +65,24 @@ class StockMovementServiceTest {
                 .hasMessageContaining("Stock insuficiente");
         assertThat(product.getCurrentStock()).isEqualTo(3);
         verify(movementRepository, never()).save(any());
+    }
+
+    @Test
+    void allowsCashiersToLoadStockInTheirBusiness() {
+        UUID businessId = UUID.randomUUID();
+        UUID productId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        Product product = new Product("CAJ-001", "Producto", null, BigDecimal.ONE, 0);
+        when(productRepository.findByIdForUpdate(businessId, productId)).thenReturn(Optional.of(product));
+        when(accessService.currentUser()).thenReturn(new CurrentUser(userId, "cashier@example.com"));
+        when(movementRepository.save(any(StockMovement.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        StockMovementService service = new StockMovementService(
+                productRepository, movementRepository, new MovementMapper(), accessService
+        );
+
+        service.create(businessId, productId, new CreateMovementRequest(MovementType.ENTRY, 5L, "Reposicion"));
+
+        verify(accessService).requireInventory(businessId, false);
+        assertThat(product.getCurrentStock()).isEqualTo(5);
     }
 }

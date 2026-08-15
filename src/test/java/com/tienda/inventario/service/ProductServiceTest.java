@@ -1,12 +1,14 @@
 package com.tienda.inventario.service;
 
 import com.tienda.inventario.dto.product.CreateProductRequest;
+import com.tienda.inventario.entity.Business;
 import com.tienda.inventario.entity.Product;
 import com.tienda.inventario.entity.StockMovement;
 import com.tienda.inventario.exception.BusinessConflictException;
 import com.tienda.inventario.mapper.ProductMapper;
 import com.tienda.inventario.repository.ProductRepository;
 import com.tienda.inventario.repository.StockMovementRepository;
+import com.tienda.inventario.repository.BusinessRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -14,11 +16,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,6 +33,12 @@ class ProductServiceTest {
 
     @Mock
     private StockMovementRepository movementRepository;
+
+    @Mock
+    private BusinessRepository businessRepository;
+
+    @Mock
+    private AccessService accessService;
 
     @Test
     void createsAProductWithNormalizedCodeAndZeroStock() {
@@ -105,5 +115,23 @@ class ProductServiceTest {
 
         assertThatThrownBy(() -> service.getByCode("7790000000000"))
                 .hasMessageContaining("7790000000000");
+    }
+
+    @Test
+    void allowsCashiersToCreateProductsInTheirBusiness() {
+        UUID businessId = UUID.randomUUID();
+        Business business = mock(Business.class);
+        when(business.getId()).thenReturn(businessId);
+        when(businessRepository.findByIdAndActiveTrue(businessId)).thenReturn(Optional.of(business));
+        when(repository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        ProductService service = new ProductService(
+                repository, movementRepository, new ProductMapper(), businessRepository, accessService
+        );
+
+        service.create(businessId, new CreateProductRequest(
+                "CAJ-001", "Producto de caja", null, BigDecimal.ONE, 0L, null
+        ));
+
+        verify(accessService).requireInventory(businessId, false);
     }
 }

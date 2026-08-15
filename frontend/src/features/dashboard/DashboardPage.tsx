@@ -8,17 +8,21 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { errorMessage } from "../../lib/api";
+import { useBusiness } from "../auth/business-context";
 import { listProducts } from "../products/product-api";
 
 export function DashboardPage() {
+  const { business } = useBusiness();
   const totals = useQuery({
-    queryKey: ["products", "dashboard-total"],
+    queryKey: ["products", "dashboard-total", business?.id],
     queryFn: () => listProducts({ size: 1 }),
+    enabled: Boolean(business),
   });
   const lowStock = useQuery({
-    queryKey: ["products", "dashboard-low-stock"],
+    queryKey: ["products", "dashboard-low-stock", business?.id],
     queryFn: () =>
       listProducts({ lowStock: true, size: 100, sort: "name,asc" }),
+    enabled: Boolean(business),
   });
 
   const outOfStock =

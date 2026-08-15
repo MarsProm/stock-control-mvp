@@ -59,7 +59,7 @@ public class StockMovementService {
 
     @Transactional
     public MovementResponse create(UUID businessId, UUID productId, CreateMovementRequest request) {
-        accessService.requireInventory(businessId, true);
+        accessService.requireInventory(businessId, false);
         return createInternal(businessId, productId, request);
     }
 

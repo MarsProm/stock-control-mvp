@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Eye, ReceiptText, RotateCcw, X } from "lucide-react";
 import { useState } from "react";
 import { errorMessage } from "../../lib/api";
+import { useBusiness } from "../auth/business-context";
 import { cancelSale, listSales } from "../pos/pos-api";
 import { ReceiptView } from "../pos/ReceiptView";
 import type { Sale } from "../pos/types";
@@ -17,8 +18,14 @@ const date = new Intl.DateTimeFormat("es-AR", {
 });
 
 export function SalesPage() {
+  const { business } = useBusiness();
+  const admin = business?.role === "ADMIN";
   const queryClient = useQueryClient();
-  const sales = useQuery({ queryKey: ["sales"], queryFn: listSales });
+  const sales = useQuery({
+    queryKey: ["sales", business?.id],
+    queryFn: listSales,
+    enabled: Boolean(business),
+  });
   const [selected, setSelected] = useState<Sale>();
   const [reason, setReason] = useState("");
   const cancel = useMutation({
@@ -144,7 +151,7 @@ export function SalesPage() {
           <Dialog.Content className="fixed inset-0 z-50 overflow-y-auto p-4 sm:p-8">
             <Dialog.Title className="sr-only">Detalle de venta</Dialog.Title>
             <div className="mx-auto mb-4 flex max-w-md justify-end gap-2 print:hidden">
-              {selected?.status === "COMPLETED" ? (
+              {admin && selected?.status === "COMPLETED" ? (
                 <div className="flex flex-1 gap-2">
                   <input
                     className="form-input"

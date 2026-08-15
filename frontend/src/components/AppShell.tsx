@@ -31,13 +31,13 @@ export function AppShell() {
       to: "/admin/dashboard",
       label: "Resumen",
       icon: BarChart3,
-      visible: admin,
+      visible: business?.inventoryEnabled,
     },
     {
       to: "/products",
       label: "Productos",
       icon: Boxes,
-      visible: admin && business?.inventoryEnabled,
+      visible: business?.inventoryEnabled,
     },
     {
       to: "/stock",
@@ -49,7 +49,7 @@ export function AppShell() {
       to: "/sales",
       label: "Ventas",
       icon: ReceiptText,
-      visible: admin && business?.reportsEnabled,
+      visible: business?.reportsEnabled,
     },
     {
       to: "/registers",

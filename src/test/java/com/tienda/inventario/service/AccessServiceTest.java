@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
@@ -64,5 +65,19 @@ class AccessServiceTest {
 
         assertThatThrownBy(() -> service.requireAdmin(businessId))
                 .isInstanceOf(AccessDeniedException.class);
+    }
+
+    @Test
+    void allowsCashiersToUseEnabledInventoryAndReports() {
+        Business business = new Business("Tienda", "tienda");
+        UUID businessId = UUID.randomUUID();
+        BusinessMembership membership = new BusinessMembership(
+                business, userId, "user@example.com", "Caja", BusinessRole.CASHIER, BigDecimal.ZERO
+        );
+        when(membershipRepository.findByBusiness_IdAndAuthUserIdAndActiveTrue(businessId, userId))
+                .thenReturn(Optional.of(membership));
+
+        assertThat(service.requireInventory(businessId, false)).isSameAs(membership);
+        assertThat(service.requireReports(businessId, false)).isSameAs(membership);
     }
 }

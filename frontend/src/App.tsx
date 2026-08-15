@@ -52,34 +52,43 @@ function App() {
                 path="/pos"
                 element={business.posEnabled ? <PosPage /> : <ModuleDisabled />}
               />
+              <Route
+                path="/admin/dashboard"
+                element={
+                  business.inventoryEnabled ? (
+                    <DashboardPage />
+                  ) : (
+                    <ModuleDisabled />
+                  )
+                }
+              />
+              <Route
+                path="/products"
+                element={
+                  business.inventoryEnabled ? (
+                    <ProductsPage />
+                  ) : (
+                    <ModuleDisabled />
+                  )
+                }
+              />
+              <Route
+                path="/sales"
+                element={
+                  business.reportsEnabled ? (
+                    <SalesPage />
+                  ) : (
+                    <ModuleDisabled />
+                  )
+                }
+              />
               {business.role === "ADMIN" ? (
                 <>
-                  <Route path="/admin/dashboard" element={<DashboardPage />} />
-                  <Route
-                    path="/products"
-                    element={
-                      business.inventoryEnabled ? (
-                        <ProductsPage />
-                      ) : (
-                        <ModuleDisabled />
-                      )
-                    }
-                  />
                   <Route
                     path="/stock"
                     element={
                       business.inventoryEnabled ? (
                         <MovementHistoryPage />
-                      ) : (
-                        <ModuleDisabled />
-                      )
-                    }
-                  />
-                  <Route
-                    path="/sales"
-                    element={
-                      business.reportsEnabled ? (
-                        <SalesPage />
                       ) : (
                         <ModuleDisabled />
                       )

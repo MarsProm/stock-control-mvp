@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { lazy, Suspense, useDeferredValue, useState } from "react";
 import { errorMessage } from "../../lib/api";
+import { useBusiness } from "../auth/business-context";
 import { MovementForm } from "../movements/MovementForm";
 import { ProductForm } from "./ProductForm";
 import {
@@ -34,6 +35,7 @@ const BarcodeScannerWorkflow = lazy(() =>
 );
 
 export function ProductsPage() {
+  const { business } = useBusiness();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const deferredSearch = useDeferredValue(search);
@@ -43,8 +45,9 @@ export function ProductsPage() {
   const [scannerOpen, setScannerOpen] = useState(false);
 
   const products = useQuery({
-    queryKey: ["products", deferredSearch],
+    queryKey: ["products", business?.id, deferredSearch],
     queryFn: () => listProducts({ query: deferredSearch, size: 50 }),
+    enabled: Boolean(business),
   });
 
   const saveProduct = useMutation({

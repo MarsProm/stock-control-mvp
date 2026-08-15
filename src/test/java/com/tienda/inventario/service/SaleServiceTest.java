@@ -23,6 +23,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -31,7 +33,9 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class SaleServiceTest {
@@ -81,6 +85,15 @@ class SaleServiceTest {
         assertThatThrownBy(() -> service.create(businessId, request(BigDecimal.ZERO, null)))
                 .isInstanceOf(BusinessConflictException.class)
                 .hasMessageContaining("turno propio");
+    }
+
+    @Test
+    void allowsCashiersToListSalesWithoutAdministrativePermission() {
+        when(saleRepository.findByBusiness_Id(any(UUID.class), any(Pageable.class))).thenReturn(Page.empty());
+
+        service.list(businessId, 0, 20);
+
+        verify(accessService).requireReports(businessId, false);
     }
 
     private void prepareShift(BigDecimal maxDiscount) {

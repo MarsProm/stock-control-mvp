@@ -72,7 +72,7 @@ public class ProductService {
 
     @Transactional
     public ProductResponse create(UUID businessId, CreateProductRequest request) {
-        return createInternal(requireBusiness(businessId, true), request, true);
+        return createInternal(requireBusiness(businessId, false), request, true);
     }
 
     private ProductResponse createInternal(Business business, CreateProductRequest request, boolean scoped) {
@@ -186,7 +186,7 @@ public class ProductService {
 
     @Transactional
     public ProductResponse update(UUID businessId, UUID id, UpdateProductRequest request) {
-        requireBusiness(businessId, true);
+        requireBusiness(businessId, false);
         return updateInternal(businessId, id, request);
     }
 
@@ -210,7 +210,7 @@ public class ProductService {
 
     @Transactional
     public ProductResponse deactivate(UUID businessId, UUID id) {
-        requireBusiness(businessId, true);
+        requireBusiness(businessId, false);
         return deactivateInternal(businessId, id);
     }
 

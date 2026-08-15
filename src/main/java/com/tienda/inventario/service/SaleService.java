@@ -162,7 +162,7 @@ public class SaleService {
 
     @Transactional(readOnly = true)
     public PageResponse<SaleResponse> list(UUID businessId, int page, int size) {
-        accessService.requireReports(businessId);
+        accessService.requireReports(businessId, false);
         if (page < 0 || size < 1 || size > 100) {
             throw new InvalidRequestException("Paginacion invalida: page >= 0 y size entre 1 y 100");
         }

@@ -123,7 +123,12 @@ public class AccessService {
 
     @Transactional(readOnly = true)
     public BusinessMembership requireReports(UUID businessId) {
-        BusinessMembership membership = requireAdmin(businessId);
+        return requireReports(businessId, true);
+    }
+
+    @Transactional(readOnly = true)
+    public BusinessMembership requireReports(UUID businessId, boolean admin) {
+        BusinessMembership membership = admin ? requireAdmin(businessId) : requireMembership(businessId);
         if (!membership.getBusiness().isReportsEnabled()) {
             throw new ResourceNotFoundException("El modulo de reportes no esta disponible");
         }
