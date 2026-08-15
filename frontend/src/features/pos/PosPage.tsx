@@ -63,12 +63,14 @@ export function PosPage() {
     enabled: Boolean(business),
   });
   const registers = useQuery({
-    queryKey: ["registers"],
+    queryKey: ["registers", business?.id],
     queryFn: listRegisters,
+    enabled: Boolean(business),
   });
   const shift = useQuery({
-    queryKey: ["shift", "current"],
+    queryKey: ["shift", "current", business?.id],
     queryFn: getCurrentShift,
+    enabled: Boolean(business),
     retry: false,
   });
   const open = useMutation({
@@ -79,7 +81,13 @@ export function PosPage() {
       registerId: string;
       openingCash: number;
     }) => openShift(registerId, openingCash),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["shift"] }),
+    onSuccess: async (openedShift) => {
+      queryClient.setQueryData(
+        ["shift", "current", business?.id],
+        openedShift,
+      );
+      await queryClient.invalidateQueries({ queryKey: ["shifts"] });
+    },
   });
   const sell = useMutation({
     mutationFn: createSale,
@@ -102,8 +110,14 @@ export function PosPage() {
     }) => closeShift(shiftId, countedCash),
     onSuccess: async () => {
       setCart([]);
-      queryClient.setQueryData(["shift", "current"], null);
-      await queryClient.invalidateQueries({ queryKey: ["shifts"] });
+      queryClient.setQueryData(
+        ["shift", "current", business?.id],
+        null,
+      );
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["shifts"] }),
+        queryClient.invalidateQueries({ queryKey: ["registers"] }),
+      ]);
     },
   });
 

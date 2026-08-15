@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Banknote, MonitorUp, Plus } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { errorMessage } from "../../lib/api";
+import { useBusiness } from "../auth/business-context";
 import {
   createRegister,
   listRegisters,
@@ -19,13 +20,19 @@ const date = new Intl.DateTimeFormat("es-AR", {
 });
 
 export function RegistersPage() {
+  const { business } = useBusiness();
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const registers = useQuery({
-    queryKey: ["registers"],
+    queryKey: ["registers", business?.id],
     queryFn: listRegisters,
+    enabled: Boolean(business),
   });
-  const shifts = useQuery({ queryKey: ["shifts"], queryFn: listShifts });
+  const shifts = useQuery({
+    queryKey: ["shifts", business?.id],
+    queryFn: listShifts,
+    enabled: Boolean(business),
+  });
   const refreshRegisters = () =>
     queryClient.invalidateQueries({ queryKey: ["registers"] });
   const create = useMutation({
